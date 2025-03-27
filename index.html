@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Memos API Viewer</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .memo-container {
+            max-width: 900px;
+            margin: 20px auto;
+            padding: 20px;
+        }
+        .memo-item {
+            display: flex;
+            align-items: flex-start;
+            background-color: #fff;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            transition: box-shadow 0.2s;
+            position: relative;
+        }
+        .memo-item:hover {
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .memo-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+            flex-shrink: 0;
+            margin-right: 15px;
+        }
+        .memo-content-wrapper {
+            flex: 1;
+            position: relative;
+        }
+        .memo-title {
+            font-size: 1em;
+            color: #888;
+            margin: 0;
+        }
+        .memo-title a {
+            text-decoration: none;
+            color: #888;
+        }
+        .memo-title a:hover {
+            text-decoration: underline;
+        }
+        .memo-content {
+            line-height: 1.6;
+            margin: 5px 0;
+            color: #555;
+        }
+        .memo-content p {
+            margin: 0; /* 单个p标签时无边距 */
+        }
+        .memo-content p:not(:last-child) {
+            margin-bottom: 8px; /* 多个p标签或p与其他标签时添加下边距 */
+        }
+        .memo-content pre, .memo-content ul, .memo-content ol {
+            margin: 0 0 8px 0; /* 其他标签默认下边距 */
+        }
+        .memo-content a {
+            text-decoration: none;
+            color: #1a73e8;
+        }
+        .memo-content a:hover {
+            text-decoration: underline;
+        }
+        .memo-content pre {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+            color: #333;
+        }
+        .memo-images {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 10px 0;
+        }
+        .memo-images img {
+            width: 150px;
+            height: 150px;
+            border-radius: 5px;
+            object-fit: cover;
+            background-color: #e0e0e0;
+            transition: opacity 0.3s;
+            cursor: pointer;
+        }
+        .memo-images img:not([src]) {
+            opacity: 0;
+        }
+        .memo-timestamp {
+            font-size: 0.85em;
+            color: #888;
+            margin-top: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .memo-timestamp span.time {
+            flex-shrink: 0;
+        }
+        .memo-timestamp .memo-title {
+            text-align: right;
+        }
+        .memo-tag {
+            background-color: #e3f2fd;
+            color: #1976d2;
+            padding: 2px 8px;
+            border-radius: 12px;
+            margin: 0 5px;
+            font-size: 0.9em;
+            display: inline-block;
+        }
+        .memo-header a {
+            text-decoration: none;
+            color: #1a73e8;
+        }
+        .memo-header a:hover {
+            text-decoration: underline;
+        }
+        .memo-pinned {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: #ffca28;
+            color: #fff;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+        .memo-container > .pagination {
+            margin-top: 20px;
+            text-align: center;
+        }
+        .pagination button {
+            padding: 8px 16px;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .pagination button:hover {
+            background-color: #f0f0f0;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .modal img {
+            max-width: 90%;
+            max-height: 90%;
+            border-radius: 5px;
+        }
+        .modal-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            color: #fff;
+            font-size: 30px;
+            cursor: pointer;
+        }
+        .loading {
+            text-align: center;
+            color: #666;
+            font-size: 1.1em;
+            margin: 20px 0;
+        }
+        .footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+            padding: 10px 0;
+            border-top: 1px solid #ddd;
+        }
+        .powered-by {
+            font-size: 0.9em;
+            color: #666;
+        }
+        .back-to-top {
+            font-size: 0.9em;
+            color: #1a73e8;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .back-to-top:hover {
+            text-decoration: underline;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            body {
+                background-color: #212121;
+                color: #e0e0e0;
+            }
+            .memo-item {
+                background-color: #2d2d2d;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            }
+            .memo-item:hover {
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            }
+            .memo-content {
+                color: #bbb;
+            }
+            .memo-content pre {
+                background: #383838;
+                color: #e0e0e0;
+            }
+            .memo-timestamp, .memo-title, .memo-title a {
+                color: #999;
+            }
+            .memo-tag {
+                background-color: #1976d2;
+                color: #e3f2fd;
+            }
+            .memo-pinned {
+                background-color: #ffa000;
+            }
+            .pagination button {
+                background-color: #424242;
+                color: #e0e0e0;
+                border: 1px solid #666;
+            }
+            .pagination button:hover {
+                background-color: #525252;
+            }
+            .memo-images img {
+                background-color: #444;
+            }
+            .memo-content a {
+                color: #64b5f6;
+            }
+            .loading {
+                color: #aaa;
+            }
+            .footer {
+                border-top: 1px solid #666;
+            }
+            .powered-by {
+                color: #aaa;
+            }
+            .back-to-top {
+                color: #64b5f6;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .memo-container {
+                margin: 10px;
+                padding: 15px;
+            }
+            .memo-images img {
+                width: 120px;
+                height: 120px;
+            }
+            .memo-item {
+                padding: 10px;
+            }
+            .memo-avatar {
+                width: 40px;
+                height: 40px;
+            }
+        }
+        @media (max-width: 480px) {
+            .memo-container {
+                padding: 10px;
+            }
+            .memo-item {
+                padding: 10px;
+            }
+            .memo-avatar {
+                width: 35px;
+                height: 35px;
+            }
+            .memo-images img {
+                width: 100px;
+                height: 100px;
+            }
+            .memo-pinned {
+                top: 5px;
+                right: 5px;
+                font-size: 0.75em;
+            }
+            .memo-timestamp {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .memo-timestamp .memo-title {
+                text-align: left;
+            }
+            .footer {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .back-to-top {
+                margin-top: 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="memo-container">
+        <h1 class="memo-header"><a href="https://isay.live/" target="_blank" id="homeLink">我说</a></h1>
+        <div id="memoList"><p class="loading">数据正在加载中...</p></div>
+        <div class="pagination">
+            <button onclick="loadMore()" id="loadMoreBtn">加载下一页</button>
+        </div>
+        <div class="footer">
+            <span class="powered-by">Power by Xsinger</span>
+            <a href="#" class="back-to-top" onclick="scrollToTop(event)">回到顶部</a>
+        </div>
+    </div>
+    <div id="imageModal" class="modal">
+        <span class="modal-close" onclick="closeModal()">×</span>
+        <img id="modalImage" src="" alt="Full Image">
+    </div>
+
+    <script src="https://cdn.staticfile.net/marked/11.1.1/marked.min.js"></script>
+    <script>
+        const domain = 'https://isay.live';
+        const defaultAvatar = 'https://cravatar.cn/avatar/deeab331b5a98ff653e67387791953f4?s=45&r=G&d=identicon';
+
+        let currentOffset = 0;
+        const limit = 10;
+        let hasMore = true;
+
+        document.getElementById('homeLink').href = `${domain}/`;
+
+        function renderContent(content) {
+            if (!content) return '';
+            let html = marked.parse(content);
+            html = html.replace(/#([\p{L}\p{N}_]+)(?=\s|$)/gu, '<span class="memo-tag">#$1</span>');
+            html = html.replace(/<a href="/g, '<a target="_blank" rel="noopener noreferrer" href="');
+			return html;
+        }
+
+        async function fetchMemos(offset) {
+            try {
+                const response = await fetch(
+                    `${domain}/api/v1/memo?creatorId=101&rowStatus=NORMAL&limit=${limit}&offset=${offset}`
+                );
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const data = await response.json();
+                
+                const memoList = document.getElementById('memoList');
+                
+                if (offset === 0) {
+                    memoList.innerHTML = '';
+                }
+                
+                if (data.length === 0 && offset === 0) {
+                    memoList.innerHTML = '<p>暂无数据</p>';
+                    hasMore = false;
+                } else {
+                    data.forEach(memo => {
+                        const memoDiv = document.createElement('div');
+                        memoDiv.className = 'memo-item';
+                        
+                        let html = `
+                            <img src="${defaultAvatar}" alt="Avatar" class="memo-avatar">
+                            <div class="memo-content-wrapper">
+                                <div class="memo-content">${renderContent(memo.content)}</div>
+                        `;
+                        
+                        if (memo.resourceList && Array.isArray(memo.resourceList) && memo.resourceList.length > 0) {
+                            html += '<div class="memo-images">';
+                            memo.resourceList.forEach(resource => {
+                                const baseUrl = `${domain}/o/r/${resource.uid || ''}`;
+                                const thumbnailUrl = `${baseUrl}?thumbnail=1`;
+                                const fullImageUrl = baseUrl;
+                                html += `<img src="${thumbnailUrl}" alt="Resource Image" loading="lazy" onclick="showModal('${fullImageUrl}')" onerror="this.style.display='none'">`;
+                            });
+                            html += '</div>';
+                        }
+                        
+                        html += `
+                                <div class="memo-timestamp">
+                                    <span class="time">Created: ${new Date(memo.createdTs * 1000).toLocaleString()}</span>
+                                    <span class="memo-title">
+                                        ID: <a href="${domain}/m/${memo.name || ''}" target="_blank">${memo.id || 'No ID'}</a>
+                                    </span>
+                                </div>
+                        `;
+                        
+                        if (memo.pinned === true) {
+                            html += `<span class="memo-pinned">置顶</span>`;
+                        }
+                        
+                        html += `</div>`;
+                        
+                        memoDiv.innerHTML = html;
+                        memoList.appendChild(memoDiv);
+                    });
+                }
+
+                hasMore = data.length === limit;
+                const loadMoreBtn = document.getElementById('loadMoreBtn');
+                loadMoreBtn.disabled = !hasMore;
+                if (!hasMore) {
+                    loadMoreBtn.textContent = '没有更多了';
+                }
+            } catch (error) {
+                console.error('Error fetching memos:', error);
+                const memoList = document.getElementById('memoList');
+                memoList.innerHTML = `<p style="color: red;">加载失败: ${error.message}</p>`;
+                document.getElementById('loadMoreBtn').disabled = true;
+            }
+        }
+
+        function loadMore() {
+            if (hasMore) {
+                currentOffset += limit;
+                fetchMemos(currentOffset);
+            }
+        }
+
+        function showModal(imageUrl) {
+            const modal = document.getElementById('imageModal');
+            const modalImage = document.getElementById('modalImage');
+            modalImage.src = imageUrl;
+            modal.style.display = 'flex';
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('imageModal');
+            modal.style.display = 'none';
+        }
+
+        document.getElementById('imageModal').addEventListener('click', (e) => {
+            if (e.target === e.currentTarget) {
+                closeModal();
+            }
+        });
+
+        function scrollToTop(event) {
+            event.preventDefault();
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        }
+
+        window.onload = () => fetchMemos(currentOffset);
+    </script>
+</body>
+</html>

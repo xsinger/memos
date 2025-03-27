@@ -62,13 +62,13 @@
             color: #555;
         }
         .memo-content p {
-            margin: 0; /* 单个p标签时无边距 */
+            margin: 0;
         }
         .memo-content p:not(:last-child) {
-            margin-bottom: 8px; /* 多个p标签或p与其他标签时添加下边距 */
+            margin-bottom: 8px;
         }
         .memo-content pre, .memo-content ul, .memo-content ol {
-            margin: 0 0 8px 0; /* 其他标签默认下边距 */
+            margin: 0 0 8px 0;
         }
         .memo-content a {
             text-decoration: none;
@@ -201,6 +201,13 @@
             font-size: 0.9em;
             color: #666;
         }
+	.powered-by a {
+            color: #1a73e8;
+            text-decoration: none;
+        }
+        .powered-by a:hover {
+            text-decoration: underline;
+        }
         .back-to-top {
             font-size: 0.9em;
             color: #1a73e8;
@@ -262,6 +269,9 @@
             }
             .powered-by {
                 color: #aaa;
+            }
+	    .powered-by a {
+                color: #64b5f6;
             }
             .back-to-top {
                 color: #64b5f6;
@@ -330,7 +340,7 @@
             <button onclick="loadMore()" id="loadMoreBtn">加载下一页</button>
         </div>
         <div class="footer">
-            <span class="powered-by">Power by Xsinger</span>
+            <span class="powered-by">Power by <a href="https://xsinger.me" target="_blank" rel="noopener noreferrer">xsinger</a></span>
             <a href="#" class="back-to-top" onclick="scrollToTop(event)">回到顶部</a>
         </div>
     </div>

@@ -194,14 +194,13 @@
             justify-content: space-between;
             align-items: center;
             margin-top: 20px;
-            padding: 10px 0;
-            border-top: 1px solid #ddd;
-        }
-        .powered-by {
+            padding: 15px 0;
+            background-color: #f9f9f9;
+            border-radius: 8px;
             font-size: 0.9em;
             color: #666;
         }
-		.powered-by a {
+        .powered-by a {
             color: #1a73e8;
             text-decoration: none;
         }
@@ -209,12 +208,13 @@
             text-decoration: underline;
         }
         .back-to-top {
-            font-size: 0.9em;
             color: #1a73e8;
             text-decoration: none;
             cursor: pointer;
+            transition: color 0.2s;
         }
         .back-to-top:hover {
+            color: #135ab6;
             text-decoration: underline;
         }
 
@@ -265,16 +265,17 @@
                 color: #aaa;
             }
             .footer {
-                border-top: 1px solid #666;
-            }
-            .powered-by {
+                background-color: #2d2d2d;
                 color: #aaa;
             }
-			.powered-by a {
+            .powered-by a {
                 color: #64b5f6;
             }
             .back-to-top {
                 color: #64b5f6;
+            }
+            .back-to-top:hover {
+                color: #4a90e2;
             }
         }
 
@@ -325,9 +326,10 @@
             .footer {
                 flex-direction: column;
                 align-items: flex-start;
+                padding: 10px;
             }
             .back-to-top {
-                margin-top: 5px;
+                margin-top: 8px;
             }
         }
     </style>
@@ -365,7 +367,7 @@
             let html = marked.parse(content);
             html = html.replace(/#([\p{L}\p{N}_]+)(?=\s|$)/gu, '<span class="memo-tag">#$1</span>');
             html = html.replace(/<a href="/g, '<a target="_blank" rel="noopener noreferrer" href="');
-			return html;
+            return html;
         }
 
         async function fetchMemos(offset) {

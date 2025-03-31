@@ -433,7 +433,7 @@
                         
                         html += `
                                 <div class="memo-timestamp">
-                                    <span class="time">Created: ${new Date(memo.createdTs * 1000).toLocaleString()}</span>
+                                    <span class="time">${new Date(memo.createdTs * 1000).toLocaleString()}</span>
                                     <span class="memo-title">
                                         ID: <a href="${domain}/m/${memo.name || ''}" target="_blank">${memo.id || 'No ID'}</a>
                                     </span>

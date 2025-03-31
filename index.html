@@ -407,7 +407,7 @@
                                 const baseUrl = `${domain}/o/r/${resource.uid || ''}`;
                                 const thumbnailUrl = `${baseUrl}?thumbnail=1`;
                                 const fullImageUrl = baseUrl;
-                                html += `<img src="${thumbnailUrl}" alt="Resource Image" loading="lazy" onclick="showModal('${fullImageUrl}')" onerror="this.style.display='none'">`;
+                                html += `<img src="${thumbnailUrl}" alt="${resource.filename || 'Resource Image'}" loading="lazy" onclick="showModal('${fullImageUrl}')" onerror="this.style.display='none'">`;
                             });
                             html += '</div>';
                         }

@@ -383,6 +383,7 @@
 
         let currentOffset = 0;
         const limit = 10;
+        const creatorId = '101';
         let hasMore = true;
 
         document.getElementById('homeLink').href = `${domain}/`;
@@ -398,7 +399,7 @@
         async function fetchMemos(offset) {
             try {
                 const response = await fetch(
-                    `${domain}/api/v1/memo?creatorId=101&rowStatus=NORMAL&limit=${limit}&offset=${offset}`
+                    `${domain}/api/v1/memo?creatorId=${creatorId}&rowStatus=NORMAL&limit=${limit}&offset=${offset}`
                 );
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);

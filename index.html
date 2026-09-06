@@ -161,6 +161,9 @@
         .memo-header a:hover {
             text-decoration: underline;
         }
+		.memo-content-pinned {
+			padding-right: 55px;
+		}
         .memo-pinned {
             position: absolute;
             top: 10px;
@@ -451,9 +454,13 @@
                                 </div>
                         `;
                         
-                        if (memo.pinned === true) {
-                            html += `<span class="memo-pinned">置顶</span>`;
-                        }
+						if (memo.pinned === true) {
+							html = html.replace(
+								'<div class="memo-content">',
+								'<div class="memo-content memo-content-pinned">'
+							);
+							html += `<span class="memo-pinned">置顶</span>`;
+						}
                         
                         html += `</div>`;
                         
